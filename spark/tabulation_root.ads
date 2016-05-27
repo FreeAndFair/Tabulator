@@ -39,5 +39,13 @@ is
    
    -- The tabulating engine.
    type Tabulator;
-   
+     
+     -- The engine that concretizes the input and tabulation of votes to
+     -- produce results for a variety of voting methods.
+
+     -- What kind of voting method do you support?
+     -- What is the result of tabulating this contest?
+     -- Create a tabulator based upon this voting method.
+     -- Tabulate based upon the following contest specification.
+     
 end Tabulation_Root;

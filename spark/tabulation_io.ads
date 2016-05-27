@@ -41,6 +41,14 @@ is
    type Contest_File;
    -- A file describing a contest result.
    type Contest_Result_File;
+   
    -- A comma-separated value, or its equivalent.
    type CSV : Vector;
+   
+   -- What is your character separator?
+   -- What is the parse of the following string using this character separator?
+   -- What is your ith component?
+   -- How many components do you contain?
+   -- invariant
+   -- Component indices start with one (1).
 end Tabulation_IO;

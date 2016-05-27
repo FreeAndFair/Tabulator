@@ -1,0 +1,106 @@
+dynamic_diagram TABULATION_INITIALIZATION
+  -- How the tabulator initializes itself.
+component
+  scenario "INIT: Determine which contest to tabulate and construct \
+          \ relevant data structures."
+  action
+    "1-3" "Contest specification."
+    "4" "Input initialization."
+    "5" "Tabulation initialization."
+    "6-7" "Output initialization."
+  end
+  object TABULATOR
+  object_group Tabulation_initialization
+  component
+    object CONTEST
+    object_group Tabulation_configuration
+    component
+      object ARGUMENTS
+      object CONTEST_FILE
+    end
+    object_stack CANDIDATE
+    object_group Tabulation_input
+    component
+      object_stack CVR_FILE
+    end
+    object CONTEST_RESULT
+    object CONTEST_RESULT_FILE
+  end
+
+  -- parse command-line input to determine which contest to tabulate
+  TABULATOR calls ARGUMENTS "1"
+  -- read in the relevant contest specification file
+  TABULATOR calls CONTEST_FILE "2"
+  -- create the contest specification
+  TABULATOR calls CONTEST "3"
+  -- open the relevant CVR_FILEs
+  TABULATOR calls CVR_FILE "4"
+  -- create and configure the appropriate tabulation algorithm
+  TABULATION calls TABULATION_ALGORITHM "5"
+  -- initialize the contest result
+  TABULATOR calls CONTEST_RESULT "6"
+  -- prepare the contest result file
+  TABULATOR calls CONTEST_RESULT_FILE "7"
+end
+
+-- @design kiniry 27 Oct 2015 - Current focus of dynamic specification.
+
+dynamic_diagram TABULATION_TABULATING
+  -- How the tabulator tabulates.
+component
+  scenario "TABULATING: Tabulate all ballots for a given contest."
+  action
+    "1-2" "Read in a set of CVRs."
+    "3" "Delegate the computation of the result to the tabulator."
+  end
+  object TABULATOR
+  object_group Tabulation_tabulating
+  component
+    object TABULATION_ALGORITHM
+    object CVR_FILE
+    -- The SET[CVR] derived from CVR_FILE used in tabulation.
+    object_stack CVR
+    -- for each entry in each CVR file, interact with the appropriate
+    -- candidate and CVR
+  end
+  TABULATOR calls CVR_FILE "1"
+  TABULATOR calls CVR "2"
+  TABULATOR calls TABULATION_ALGORITHM "3"
+end
+
+dynamic_diagram TABULATION_OUTPUT_CONTEST_RESULT
+  -- How the tabulator summarizes its output.
+component
+  scenario "OUTPUT: Output the results of a tabulation computation."
+  action
+    "1" "Request the result of tabulation from the current algorithm."
+    "2" "Read the complete contest result."
+    "3" "Write its contents to the contest result file."
+  end
+  object TABULATOR
+  object TABULATION_ALGORITHM
+  object_group Tabulation_output
+  component
+    TABULATOR calls TABULATION_ALGORITHM "1"
+    TABULATOR calls CONTEST_RESULT "2"
+    TABULATOR calls CONTEST_RESULT_FILE "3"
+  end
+end
+
+dynamic_diagram TABULATOR_DYNAMIC_ARCHITECTURE
+  -- This shows the overall dynamic architecture of the tabulator.
+component
+  scenario "STABLE: The stable dynamic configuration of the tabulator."
+  action
+    "1" "Tabulator initialization."
+    "2" "Tabulating."
+    "3" "Output contest result."
+  end
+  object TABULATOR
+  object_group Tabulation_initialization
+  object_group Tabulation_tabulating
+  object_group Tabulation_output
+  TABULATOR calls Tabulation_initialization "1"
+  TABULATOR calls Tabulation_tabulating "2"
+  TABULATOR calls Tabulation_output "3"
+end

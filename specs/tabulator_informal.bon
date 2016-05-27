@@ -1,0 +1,180 @@
+-- This tabulator system specification is written in the EBON
+-- specification language, based upon the BON specification language
+-- from Walden and Nerson.  See http://bon-method.com/ for more
+-- information about BON and http://kindsoftware.com/ for more
+-- information about EBON.  Tool support for EBON is provided by the
+-- BON compiler, bonc, and several other tools.  See
+-- https://github.com/kiniry/BON for more information.
+
+-- Informal Charts
+
+-- Tabulator Domain Model
+
+-- This model relies upon the domain model of elections, as originally
+-- defined in the E2E-VIV project and since further refined.
+
+system_chart FREE_AND_FAIR_TABULATOR
+indexing
+  author: "Joseph Kiniry <kiniry@freeandfair.us>";
+  organization: "Free & Fair";
+  keywords: "tabulation";
+  created: "Sat Oct 10 14:49:08 EDT 2015";
+  updated: "Thu May 26 10:30:07 PDT 2016";
+  gitlab: "https://gitlab-ext.galois.com/FreeAndFair/Tabulator";
+  github: "https://github.com/FreeAndFair/Tabulator";
+explanation
+  "The Free & Fair tabulator."
+cluster ELECTION_DOMAIN_MODEL description "Core concepts generic to all \
+ \ elections."
+cluster TABULATION_ROOT description "Main body of tabulation system."
+cluster TABULATION_IO description "Types stipulating the inputs and \
+ \ outputs of the tabulation algorithm."
+cluster TABULATION_COMPUTATION description "Computations that compute \
+ \ on tabulation inputs to determine tabulation outputs."
+end
+
+cluster_chart TABULATION_ROOT
+explanation
+  "Main body of tabulation system."
+class TABULATOR
+description
+  "The tabulating engine."
+end
+
+cluster_chart TABULATION_IO
+explanation
+  "The input and output artifacts necessary for tabulation."
+class CVR_FILE
+description
+  "A CVR file."
+class CSV_FILE
+description
+  "A CSV file."
+class CONTEST_FILE
+description
+  "A file that contains a description of a single contest."
+class CONTEST_RESULT_FILE
+description
+  "A file describing a contest result."
+class CSV
+description
+  "A comma-separated value, or its equivalent."
+end
+
+cluster_chart TABULATION_COMPUTATION
+explanation
+  "Computational concepts associated with tabulation.  Typically sets \
+ \ of ballots are tabulated to determine winning candidates or an answer \
+ \ to a ballot question."
+class TABULATION_ALGORITHM
+description
+  "A function that tabulates according to a specific election method."
+class PLURALITY_TABULATION_ALGORITHM
+description
+  "Tabulation of the plurality voting method."
+class RCV_TABULATION_ALGORITHM
+description
+  "A tabulator for an RCV voting methods."
+class SAN_FRANCISCO_RCV_TABULATION_ALGORITHM
+description
+  "A tabulator for San Francisco County and City's version of an RCV method."
+class APPROVAL_TABULATION_ALGORITHM
+description
+  "A tabulator for an approval voting method."
+end
+
+-- class charts for tabulation system
+
+-- cluster TABULATION_ROOT
+
+class_chart TABULATOR
+explanation
+  "The engine that concretizes the input and tabulation of votes to \
+ \ produce results for a variety of voting methods."
+query
+  "What kind of voting method do you support?",
+  "What is the result of tabulating this contest?",
+  "Create a tabulator based upon this voting method.",
+  "Tabulate based upon the following contest specification."
+end
+
+-- cluster TABULATION_IO
+
+class_chart CVR_FILE
+explanation
+  "A file that contains a list of CVRs."
+end
+
+class_chart CSV_FILE
+explanation
+  "A file that contains a list of CSVs."
+end
+
+class_chart CONTEST_FILE
+explanation
+  "A file that contains a description of a single contest."
+end
+
+class_chart CONTEST_RESULT_FILE
+explanation
+  "A file that contains a list of contest results."
+end
+
+class_chart CSV
+explanation
+  "A comma-separated value."
+query
+  "What is your character separator?",
+  "What is the parse of the following string using this character separator?",
+  "What is your ith component?",
+  "How many components do you contain?"
+constraint
+  "Component indices start with one (1)."
+end
+
+-- cluster TABULATION_COMPUTATION
+
+class_chart TABULATION_ALGORITHM
+explanation
+  "A function that tabulates according to a specific election method."
+query
+  "What kind of voting method do you support?",
+  "What is the result of tabulating this contest with that set of CVRs?",
+  "Create a tabulation algorithm based upon this voting method."
+end
+
+class_chart PLURALITY_TABULATION_ALGORITHM
+explanation
+  "Tabulation of the plurality voting method."
+inherit TABULATION_ALGORITHM
+query
+  "What is the result of tabulating this contest using a plurality \
+ \ voting method?"
+end
+
+class_chart RCV_TABULATION_ALGORITHM
+explanation
+  "A tabulator for an RCV voting methods."
+inherit TABULATION_ALGORITHM
+query
+  "What is the result of tabulating this contest using an RCV  \
+ \ voting method?"
+end
+
+class_chart SAN_FRANCISCO_RCV_TABULATION_ALGORITHM
+explanation
+  "A tabulator for San Francisco County and City's version of an RCV method."
+inherit RCV_TABULATION_ALGORITHM
+query
+  "What is the result of tabulating this contest using an RCV  \
+ \ voting method?"
+end
+
+class_chart APPROVAL_TABULATION_ALGORITHM
+explanation
+  "A tabulator for an approval voting method."
+inherit TABULATION_ALGORITHM
+query
+  "What is the result of tabulating this contest using an approval \
+ \ voting method?"
+end

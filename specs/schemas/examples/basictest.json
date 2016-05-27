@@ -1,0 +1,24 @@
+{
+    "isTest" : true,
+    "votes": [{
+	"id": 1,
+	"ranks": [
+	    [1],
+	    [2],
+	    [3, 4]
+	]
+    }],
+    "counts" : [2],
+    "results" : {
+        "winner": 1,
+        "record" : [
+            {"tally" : [ { "candidate" : 1, "firstChoices" : 2},
+                         { "candidate" : 2, "firstChoices" : 0},
+                         { "candidate" : 3, "firstChoices" : 0},
+                         { "candidate" : 4, "firstChoices" : 0} ],
+             "eliminated" : [2, 3, 4] } 
+        ]
+	
+    },
+    "tiebreak": []
+}

@@ -1,0 +1,8 @@
+packages:
+- '.'
+extra-deps:
+- attoparsec-0.13.0.1
+- simple-get-opt-0.1.0.0
+- aeson-0.10.0.0
+- vector-0.11.0.0
+resolver: lts-3.3

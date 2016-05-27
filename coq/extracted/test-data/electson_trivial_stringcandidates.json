@@ -1,0 +1,15 @@
+{ "_meta": {
+    "id" : "deadbeef",
+    "index": 1,
+    "name": "trivial electson serialization with string candidate names"
+  }
+, "candidates": [
+    "Alice",
+    "Betty"
+  ]
+, "ballots": [
+    ["Alice", "Betty"],
+    ["Alice"],
+    ["Betty", "Alice"]
+  ]
+}

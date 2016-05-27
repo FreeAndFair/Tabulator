@@ -40,12 +40,21 @@ is
    -- The tabulating engine.
    type Tabulator;
      
-     -- The engine that concretizes the input and tabulation of votes to
-     -- produce results for a variety of voting methods.
+   -- The engine that concretizes the input and tabulation of votes to
+   -- produce results for a variety of voting methods.
 
-     -- What kind of voting method do you support?
-     -- What is the result of tabulating this contest?
-     -- Create a tabulator based upon this voting method.
-     -- Tabulate based upon the following contest specification.
+   -- What kind of voting method do you support?
+   function Voting_Method (Tabulator: in Tabulator) is
+     Result: Voting_Method;
+   -- What is the result of tabulating this contest with that set of CVRs?
+   function Contest_Result (Tabulator: in Tabulator,
+                            C: in Contest) is
+     Result: Contest Result;
+   -- Create a tabulation algorithm based upon this voting method.
+   function Create (Vm: Voting_Method) is
+     Result: Tabulator;
+   -- Tabulate based upon the following contest specification.
+   function Tabulate (Args: Arguments) is
+     Result: Contest_Result_File;
      
 end Tabulation_Root;

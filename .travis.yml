@@ -1,0 +1,16 @@
+language: haskell
+ghc: 7.8
+before_install:
+  - wget https://raw.github.com/ocaml/opam/master/shell/opam_installer.sh -O - | sudo sh -s /usr/bin
+  - sudo apt-get install ocaml ocaml-native-compilers camlp5 -qq
+  - opam init -a -y
+  - eval $(opam config env)
+  - opam repo add coq-released https://coq.inria.fr/opam/released
+  - opam install coq.8.4.5 --verbose -y -j2
+  - cd src
+  - make SF_tests.vo
+  - cd extracted
+install:
+  - cabal install --only-dependencies --enable-tests --reorder-goals
+script:
+  - cabal configure --enable-tests && cabal build && cabal test --show-details=always

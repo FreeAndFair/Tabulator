@@ -30,31 +30,27 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
-with System;
-with Interfaces;
+with Tabulation_Types; use Tabulation_Types;
+with Tabulation_Computation; use Tabulation_Computation;
 
 package Tabulation_Root
   -- Main body of tabulation system.
 is
-   
-   -- The tabulating engine.
-   type Tabulator;
-     
    -- The engine that concretizes the input and tabulation of votes to
    -- produce results for a variety of voting methods.
 
+
    -- What kind of voting method do you support?
-   function Voting_Method (Tabulator: in Tabulator) is
-     Result: Voting_Method;
+   function Voting_Method (A_Tabulator: in Tabulator)
+     return Voting_Method;
    -- What is the result of tabulating this contest with that set of CVRs?
-   function Contest_Result (Tabulator: in Tabulator,
-                            C: in Contest) is
-     Result: Contest Result;
+   function Contest_Result (The_Tabulator: in Tabulator;
+                            A_Contest: in Contest)
+     return Contest_Result;
    -- Create a tabulation algorithm based upon this voting method.
-   function Create (Vm: Voting_Method) is
-     Result: Tabulator;
+   function Create (A_Voting_Method: Voting_Method) return Tabulator;
    -- Tabulate based upon the following contest specification.
-   function Tabulate (Args: Arguments) is
-     Result: Contest_Result_File;
+   -- Will read from Argument to determine contest specification.     
+   function Tabulate return Contest_Result_File;
      
 end Tabulation_Root;

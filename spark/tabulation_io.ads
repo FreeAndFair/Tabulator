@@ -30,25 +30,23 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
+with SPARK.Text_IO; use SPARK.Text_IO;
+with Tabulation_Types; use Tabulation_Types;
+
 package Tabulation_IO
   -- The input and output artifacts necessary for tabulation.
 is
-   -- A CVR file.
-   type CVR_File;
-   -- A CSV file.
-   type CSV_File;
-   -- A file that contains a description of a single class.
-   type Contest_File;
-   -- A file describing a contest result.
-   type Contest_Result_File;
-   
-   -- A comma-separated value, or its equivalent.
-   type CSV : Vector;
-   
    -- What is your character separator?
+   function Separator (Some_Csvs: Csvs) return Character;
    -- What is the parse of the following string using this character separator?
+   function Parse (A_String: String; A_Character: Character) return Csvs;
    -- What is your ith component?
+   -- Realized by SPARK's array component reference operator ().
+   function Ith (An_Index: Positive) return String;
    -- How many components do you contain?
+   -- Realized by SPARK's array attribute Length.
+   function Count return Natural;
    -- invariant
    -- Component indices start with one (1).
+   -- Satisfied by the use of Postive type in all range declarations.
 end Tabulation_IO;

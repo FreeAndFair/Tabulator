@@ -30,40 +30,44 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
+with Tabulation_Types; use Tabulation_Types;
+
 package Tabulation_Computation
   -- Computational concepts associated with tabulation.  Typically sets
   -- of ballots are tabulated to determine winning candidates or an answer
-  -- to a ballot question."
+  -- to a ballot question.
 is
-   -- A function that tabulates according to a specific election method.
-   type Tabulation_Algorithm;
-   -- Tabulation of the plurality voting method.
-   type Plurality_Tabulation_Algorithm;
-   -- A tabulator for an RCV voting methods.
-   type RCV_Tabulation_Algorithm;
-   -- A tabulator for San Francisco County and City's version of an RCV method.
-   type San_Francisco_RCV_Tabulation_Algorithm;
-   -- A tabulator for an approval voting method.
-   type Approval_Tabulation_Algorithm;
-     
-   -- Tabulation_Algorithm
-   -- What kind of voting method do you support?
-   -- What is the result of tabulating this contest with that set of CVRs?
-   -- Create a tabulation algorithm based upon this voting method.
+   -- What is the result of tabulating this contest using the appropriate 
+   -- voting method?
+   function Tabulation_Algorithm (The_Tabulator: in Tabulator;
+                                  A_Contest: in Contest)
+     return Contest_Result;
      
    -- Plurality_Tabulation_Algorithm
    -- What is the result of tabulating this contest using a plurality
    -- voting method?
-     
-   -- RCV_Tabulation_Algorithm
+   function Plurality_Tabulation_Algorithm (The_Tabulator: in Tabulator;
+                                            A_Contest: in Contest)
+     return Contest_Result;
+   
+   -- Rcv_Tabulation_Algorithm
    -- What is the result of tabulating this contest using an RCV
    -- voting method?
+   function Rcv_Tabulation_Algorithm (The_Tabulator: in Tabulator;
+                                      A_Contest: in Contest)
+     return Contest_Result;
      
-   -- San_Francisco_RCV_Tabulation_Algorithm
+   -- San_Francisco_Rcv_Tabulation_Algorithm
    -- What is the result of tabulating this contest using an RCV
    -- voting method?
+   function San_Francisco_Rcv_Tabulation_Algorithm (The_Tabulator: in Tabulator;
+                                                    A_Contest: in Contest)
+     return Contest_Result;
      
    -- Approval_Tabulation_Algorithm
    -- What is the result of tabulating this contest using an approval
    -- voting method?
+   function Approval_Tabulation_Algorithm (The_Tabulator: in Tabulator;
+                                           A_Contest: in Contest)
+     return Contest_Result;
 end Tabulation_Computation;

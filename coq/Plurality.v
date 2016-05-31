@@ -22,9 +22,11 @@ Section election_spec.
   Let ballot := candidate.
   Let election := list ballot.
 
+  (** Does this candidate participate in that election? *)
   Definition participates candidate (election : election) : Prop := 
   In candidate election.
 
+  (** How many votes  *)
   Inductive voteCount candidate : election -> N -> Prop :=
   | voteCountCandidate : forall countCandidate election' ct,
       candidate = countCandidate ->
@@ -36,7 +38,7 @@ Section election_spec.
       voteCount candidate (countCandidate :: election') ct
   | voteCountNil : voteCount candidate nil 0.
   
-
+  (** Does this candidate hold a plurality in that election? *)
   Definition hasPlurality winningCandidate (election : election) : Prop :=
     forall candidate candidateCount winningCandidateCount,
       candidate <> winningCandidate ->

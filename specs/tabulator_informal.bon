@@ -59,6 +59,9 @@ description
 class CSV
 description
   "A comma-separated value, or its equivalent."
+class CONTEST
+description
+  "A single election contest."
 end
 
 cluster_chart TABULATION_COMPUTATION
@@ -177,4 +180,12 @@ inherit TABULATION_ALGORITHM
 query
   "What is the result of tabulating this contest using an approval \
  \ voting method?"
+end
+
+class_chart CONTEST
+explanation
+  "A single election contest."
+query
+  "What kind of election scheme does this contest have?",
+  "What is the list of choices for this contest?"
 end

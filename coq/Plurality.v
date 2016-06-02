@@ -18,7 +18,10 @@ Section election_spec.
       of how candidates are defined.
    *)
   Variable candidate:Set.
- 
+
+  (** `ballot` and `election` are locally defined types specific to
+      plurality; a ballot chooses exactly one candidate and a single
+      race is a list of ballots. *)
   Let ballot := candidate.
   Let election := list ballot.
 
@@ -26,7 +29,7 @@ Section election_spec.
   Definition participates candidate (election : election) : Prop := 
   In candidate election.
 
-  (** How many votes  *)
+  (** How many votes does each candidate have in an election? *)
   Inductive voteCount candidate : election -> N -> Prop :=
   | voteCountCandidate : forall countCandidate election' ct,
       candidate = countCandidate ->

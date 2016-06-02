@@ -44,7 +44,7 @@ component
     feature
       separator: CHARACTER
       parse: CSV
-        -> s: STRING,
+        -> s: STRING
         -> c: CHARACTER
       count: NATURAL
     end
@@ -57,42 +57,43 @@ component
   component
     deferred class TABULATION_ALGORITHM
     feature
-      deferred voting_method : VOTING_METHOD
-      deferred contest_result : CONTEST_RESULT
+      deferred which_voting_method : VOTING_METHOD
+      deferred compute_contest_result : CONTEST_RESULT
         -> c : CONTEST
         -> cvrs: SET[CVR]
       create: TABULATION_COMPUTATION
         -> vm: VOTING_METHOD
         ensure Result.voting_method = vm end
+      deferred tabulate: CONTEST_RESULT_FILE
     end
     effective class PLURALITY_TABULATION_ALGORITHM
     inherit TABULATION_ALGORITHM
     feature
-      effective voting_method : VOTING_METHOD
+      effective which_voting_method : VOTING_METHOD
         ensure Result = PLURALITY end
-      effective contest_result : CONTEST_RESULT
+      effective compute_contest_result : CONTEST_RESULT
         -> c : CONTEST
     end
     deferred class RCV_TABULATION_ALGORITHM
     inherit TABULATION_ALGORITHM
     feature
-      deferred voting_method : VOTING_METHOD
+      deferred which_voting_method : VOTING_METHOD
         ensure Result : RCV end
-    end
-    effective class APPROVAL_TABULATION_ALGORITHM
-    inherit TABULATION_ALGORITHM
-    feature
-      effective voting_method : VOTING_METHOD
-        ensure Result = APPROVAL end
-      effective contest_result : CONTEST_RESULT
-        -> c : CONTEST
     end
     effective class SAN_FRANCISCO_RCV_TABULATION_ALGORITHM
     inherit RCV_TABULATION_ALGORITHM
     feature
-      effective voting_method : VOTING_METHOD
+      effective which_voting_method : VOTING_METHOD
         ensure Result = SAN_FRANCISCO_RCV end
-      effective contest_result : CONTEST_RESULT
+      effective compute_contest_result : CONTEST_RESULT
+        -> c : CONTEST
+    end
+    effective class APPROVAL_TABULATION_ALGORITHM
+    inherit TABULATION_ALGORITHM
+    feature
+      effective which_voting_method : VOTING_METHOD
+        ensure Result = APPROVAL end
+      effective compute_contest_result : CONTEST_RESULT
         -> c : CONTEST
     end
   end

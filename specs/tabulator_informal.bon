@@ -26,11 +26,56 @@ explanation
   "The Free & Fair tabulator."
 cluster ELECTION_DOMAIN_MODEL description "Core concepts generic to all \
  \ elections."
+cluster TABULATION_TYPES description "The types involved in the Tabulator."
 cluster TABULATION_ROOT description "Main body of tabulation system."
 cluster TABULATION_IO description "Types stipulating the inputs and \
  \ outputs of the tabulation algorithm."
 cluster TABULATION_COMPUTATION description "Computations that compute \
  \ on tabulation inputs to determine tabulation outputs."
+end
+
+cluster_chart TABULATION_TYPES
+explanation
+  "The types involved in the Tabulator."
+class CSV
+description
+  "A comma-separated value, or its equivalent."
+class CSVS
+description
+  "A list of CSVs."
+class VOTING_METHOD
+description
+  "Tabulation algorithms potentially supported by the tabulator."
+class RCV_VOTING_METHOD
+description
+  "RCV variants, in particular."
+-- @bon kiniry - CVR is part of our election domain model.
+-- class CVR
+-- description
+--   "Plurality cast vote records (CVRs)."
+class CVRS
+description
+  "A list of CVRs."
+-- @bon kiniry - CONTEST is part of our election domain model.
+-- @design kiniry - Our version of CONTEST is significantly smaller
+-- than the domain model's variant.  How should we handle this
+-- situation long term?  Simply use hiding?
+-- class CONTEST
+-- description
+--   "A single election contest."
+-- @bon kiniry - CONTEST_RESULT is part of our election domain model.
+-- class CONTEST_RESULT
+-- description
+--   "A contest result."
+class SIMPLE_PLURALITY_CONTEST_RESULT
+description
+  "A plurality election result with a single winner."
+class MULTISEAT_PLURALITY_CONTEST_RESULT
+description
+  "A plurality election result with multiple winners."
+class MULTISEAT_RCV_CONTEST_RESULT
+description
+  "A multiseat RCV election result with one or more winners."
 end
 
 cluster_chart TABULATION_ROOT
@@ -56,12 +101,6 @@ description
 class CONTEST_RESULT_FILE
 description
   "A file describing a contest result."
-class CSV
-description
-  "A comma-separated value, or its equivalent."
-class CONTEST
-description
-  "A single election contest."
 end
 
 cluster_chart TABULATION_COMPUTATION
@@ -77,7 +116,7 @@ description
   "Tabulation of the plurality voting method."
 class RCV_TABULATION_ALGORITHM
 description
-  "A tabulator for an RCV voting methods."
+  "A tabulator for all RCV voting methods."
 class SAN_FRANCISCO_RCV_TABULATION_ALGORITHM
 description
   "A tabulator for San Francisco County and City's version of an RCV method."
@@ -96,7 +135,7 @@ explanation
  \ produce results for a variety of voting methods."
 query
   "What kind of voting method do you support?",
-  "What is the result of tabulating this contest?",
+  "What is the result of tabulating this contest with that set of CVRs?",
   "Create a tabulator based upon this voting method.",
   "Tabulate based upon the following contest specification."
 end
@@ -106,33 +145,33 @@ end
 class_chart CVR_FILE
 explanation
   "A file that contains a list of CVRs."
+query
+  "Which file contains the CVRs?",
+  "What are the CVRs?"
 end
 
 class_chart CSV_FILE
 explanation
   "A file that contains a list of CSVs."
+query
+  "Which file contains the CSVs?",
+  "What are the CSVs?"
 end
 
 class_chart CONTEST_FILE
 explanation
   "A file that contains a description of a single contest."
+query
+  "Which file contains the contest?",
+  "What is the contest?"
 end
 
 class_chart CONTEST_RESULT_FILE
 explanation
   "A file that contains a list of contest results."
-end
-
-class_chart CSV
-explanation
-  "A comma-separated value."
 query
-  "What is your character separator?",
-  "What is the parse of the following string using this character separator?",
-  "What is your ith component?",
-  "How many components do you contain?"
-constraint
-  "Component indices start with one (1)."
+  "Which file contains the contest results?",
+  "What are the contest results?"
 end
 
 -- cluster TABULATION_COMPUTATION
@@ -169,8 +208,8 @@ explanation
   "A tabulator for San Francisco County and City's version of an RCV method."
 inherit RCV_TABULATION_ALGORITHM
 query
-  "What is the result of tabulating this contest using an RCV  \
- \ voting method?"
+  "What is the result of tabulating this contest using the San \
+ \ Francisco's variant of the RCV voting method?"
 end
 
 class_chart APPROVAL_TABULATION_ALGORITHM
@@ -182,10 +221,73 @@ query
  \ voting method?"
 end
 
-class_chart CONTEST
+-- cluster TABULATION_TYPES
+
+class_chart CSV
 explanation
-  "A single election contest."
+  "A single list of comma-separated values."
 query
-  "What kind of election scheme does this contest have?",
-  "What is the list of choices for this contest?"
+  "What is your character separator?",
+  "What is the parse of the following string using this character separator?",
+  "What is your ith component?",
+  "How many components do you contain?"
+constraint
+  "Component indices start with one (1)."
 end
+
+class_chart CSVS
+explanation
+  ""
+end
+
+class_chart VOTING_METHOD
+explanation
+  "Tabulation algorithms potentially supported by the tabulator."
+end
+  
+class_chart RCV_VOTING_METHOD
+explanation
+  "RCV variants, in particular."
+end
+
+-- @bon kiniry - CVR is part of our elections domain model.
+-- class_chart CVR
+-- explanation
+--   "Plurality cast vote records (CVRs)."
+-- end
+
+class_chart CVRS
+explanation
+  "A list of CVRs."
+end
+
+-- @bon kiniry - CONTEST is part of our election domain model.
+-- class_chart CONTEST
+-- explanation
+--   "A single election contest."
+-- query
+--   "What kind of election scheme does this contest have?",
+--   "What is the list of choices for this contest?"
+-- end
+
+-- @bon kiniry - CONTEST_RESULT is part of our election domain model.
+-- class_chart CONTEST_RESULT
+-- explanation
+--   "A contest result."
+-- end
+
+class_chart SIMPLE_PLURALITY_CONTEST_RESULT
+explanation
+  "A plurality election result with a single winner."
+end
+
+class_chart MULTISEAT_PLURALITY_CONTEST_RESULT
+explanation
+  "A plurality election result with multiple winners."
+end
+
+class_chart MULTISEAT_RCV_CONTEST_RESULT
+explanation
+  "A multiseat RCV election result with one or more winners."
+end
+

@@ -37,6 +37,8 @@ package Tabulation_Types
 is
    -- Comma separated values (CSVs).
    -- We support values in CSVs of length no greater than 256 bytes.
+   -- @review kiniry - Make these kinds of types private. Expose exactly
+   -- those types mentioned in the BON specification.
    subtype Index_256 is Integer range 1 .. 256;
    subtype String_256 is String(Index_256);
    -- A single list of comma-separated values.
@@ -52,15 +54,16 @@ is
    -- Plurality cast vote records (CVRs).  The digital representation
    -- of a single race on a ballot in a plurality.
    type Cvr is array(Positive) of Natural;
+   -- A list of CVRs.
    type Cvrs is array(Positive) of Cvr;
-   -- A CVR file.
-   type Cvr_File is
-      record
-         The_File: File_Type;
-         Some_Cvrs: Cvrs;
-      end record;
-
+   
+   -- ============================================================
+   -- Coq types
+   -- ============================================================
    -- A Choice in a race; aka a Candidate or a Measure Choice.
+   -- @design kiniry - Should these types be private as well?
+   -- @design kiniry - Should these kinds of types and functions be
+   -- relegated into a child package?
    -- @coq Variable candidate: Set.
    type Choice is new Positive;
    -- A ballot contains a single choice.
@@ -71,6 +74,8 @@ is
    type Election is array(Positive) of Ballot;
 
    -- Does this candidate participate in that election?
+   -- @design kiniry - Should these functions be private and be used only
+   -- for assurance arguments relating this implementation to the Coq spec?
    -- @coq Definition participates candidate (election : election) : Prop
    function Participates (A_Choice: Choice; An_Election: Election)
                          return Boolean;
@@ -78,8 +83,10 @@ is
    -- @coq Definition hasPlurality winningCandidate (election : election) : Prop 
    function Has_Plurality (A_Choice: Choice; An_Election: Election)
                           return Boolean;
-
-   -- A contest, consisting of a voting method and some choices.
+   -- ============================================================
+   
+   -- A single election contest. A contest, consisting of a voting
+   -- method and some choices.
    type Contest is
       record
          -- What kind of election scheme does this contest have?
@@ -87,54 +94,41 @@ is
          -- What is the list of choices for this contest?
          Some_Choices: Choice;
       end record;
+   -- A contest result. Contest results are computed by one of the
+   -- Tabulation_Algorithm functions in the Tabulation_Computation
+   -- package. This is a tagged record so that we can extend it
+   -- appropriately for various kinds of election schemes.
    type Contest_Result is tagged
       record
          -- This is the result of which contest?
          The_Contest: Contest;
       end record;
+   -- A plurality election result with a single winner.  
+   -- @review kiniry - Is this record type redundant and we should
+   -- only define and use Multiseat_Plurality_Contest_Result, renaming
+   -- it Plurality_Contest_Result and for a simple plurality election
+   -- the cardinality of Winners will be 1?
    type Simple_Plurality_Contest_Result is new Contest_Result with
       record
          -- Who is the single winner of this contest?
          Winner: Choice;
       end record;
+   -- @design kiniry - More private types.
    type Unordered_Choices is array(Positive) of Choice;
    type Ordered_Choices is array(Positive) of Choice;
+   -- A plurality election result with multiple winners.
    type Multiseat_Plurality_Contest_Result is new Simple_Plurality_Contest_Result with
       record
          -- Who are the winners of this contest?
          Winners: Unordered_Choices;
       end record;
+   -- A multiseat RCV election result with one or more winners.
+   -- @design kiniry - Note the lack of alignment with this definition and 
+   -- that of Simple_Plurality_Contest_Result.
    type Multiseat_Rcv_Contest_Result is new Contest_Result with
       record
          -- Who are the winners of this contest?
          Winners: Ordered_Choices;
       end record;
    
-   -- A CSV file.
-   type Csv_File is
-      record
-         The_File: File_Type;
-         Some_Csvs: Csvs;
-      end record;
-   -- A file that contains a description of a single class.
-   type Contest_File is
-      record
-         The_File: File_Type;
-         A_Contest: Contest;
-      end record;
-   -- A file describing a contest result.
-   type Contest_Result_File is
-      record
-         The_File: File_Type;
-         A_Contest_Result: Contest_Result;
-      end record;
-
-   -- The tabulating engine.
-   type Tabulator is
-      record
-         The_Voting_Method:  Voting_Method;
-         A_Contest:          Contest;
-         A_Contest_Result:   Contest_Result;
-      end record;
-
 end Tabulation_Types;       

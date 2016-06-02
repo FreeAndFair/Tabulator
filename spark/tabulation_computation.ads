@@ -37,36 +37,50 @@ package Tabulation_Computation
   -- of ballots are tabulated to determine winning candidates or an answer
   -- to a ballot question.
 is
-   -- What is the result of tabulating this contest using the appropriate 
-   -- voting method?
+   -- The tabulating engine. The main data structure tying together
+   -- all inputs to the tabulating engine. The engine that concretizes
+   -- the input and tabulation of votes to produce results for a
+   -- variety of voting methods.
+   -- @bon kiniry - Note that this class resides in the
+   -- TABULATION_ROOT cluster in the architecture but because of
+   -- SPARK's typesystem we must declare this record here and expose
+   -- its queries in Tabulation_Root.
+   type Tabulator is
+      record
+         The_Voting_Method:  Voting_Method;
+         A_Contest:          Contest;
+         A_Contest_Result:   Contest_Result;
+      end record;
+   
+   -- A function that tabulates according to a specific election
+   -- method.  What is the result of tabulating this contest using the
+   -- appropriate voting method?
    function Tabulation_Algorithm (The_Tabulator: in Tabulator;
                                   A_Contest: in Contest)
      return Contest_Result;
      
-   -- Plurality_Tabulation_Algorithm
-   -- What is the result of tabulating this contest using a plurality
-   -- voting method?
+   -- Tabulation of the plurality voting method.  What is the result
+   -- of tabulating this contest using a plurality voting method?
    function Plurality_Tabulation_Algorithm (The_Tabulator: in Tabulator;
                                             A_Contest: in Contest)
      return Contest_Result;
    
-   -- Rcv_Tabulation_Algorithm
-   -- What is the result of tabulating this contest using an RCV
-   -- voting method?
+   -- A tabulator for all RCV voting methods.  What is the result of
+   -- tabulating this contest using an RCV voting method?
+   -- @design kiniry - Is this function necessary at all?
    function Rcv_Tabulation_Algorithm (The_Tabulator: in Tabulator;
                                       A_Contest: in Contest)
      return Contest_Result;
      
-   -- San_Francisco_Rcv_Tabulation_Algorithm
-   -- What is the result of tabulating this contest using an RCV
-   -- voting method?
+   -- A tabulator for San Francisco County and City's version of an
+   -- RCV method. What is the result of tabulating this contest using
+   -- the San Francisco's variant of the RCV voting method?
    function San_Francisco_Rcv_Tabulation_Algorithm (The_Tabulator: in Tabulator;
                                                     A_Contest: in Contest)
      return Contest_Result;
      
-   -- Approval_Tabulation_Algorithm
-   -- What is the result of tabulating this contest using an approval
-   -- voting method?
+   -- A tabulator for an approval voting method.  What is the result
+   -- of tabulating this contest using an approval voting method?
    function Approval_Tabulation_Algorithm (The_Tabulator: in Tabulator;
                                            A_Contest: in Contest)
      return Contest_Result;

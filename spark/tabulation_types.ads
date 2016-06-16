@@ -30,6 +30,8 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
+pragma SPARK_Mode(On);
+
 with SPARK.Text_IO; use SPARK.Text_IO;
 
 package Tabulation_Types
@@ -77,11 +79,11 @@ is
    -- @design kiniry - Should these functions be private and be used only
    -- for assurance arguments relating this implementation to the Coq spec?
    -- @coq Definition participates candidate (election : election) : Prop
-   function Participates (A_Choice: Choice; An_Election: Election)
+   function Participates (A_Choice: in Choice; An_Election: in Election)
                          return Boolean;
    -- Has this candidate won that election?
    -- @coq Definition hasPlurality winningCandidate (election : election) : Prop 
-   function Has_Plurality (A_Choice: Choice; An_Election: Election)
+   function Has_Plurality (A_Choice: in Choice; An_Election: in Election)
                           return Boolean;
    -- ============================================================
    

@@ -30,6 +30,8 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
+pragma SPARK_Mode(On);
+
 with Tabulation_Types; use Tabulation_Types;
 with Tabulation_Computation; use Tabulation_Computation;
 with Tabulation_Io; use Tabulation_Io;
@@ -47,7 +49,7 @@ is
      return Contest_Result;
    
    -- Create a tabulator based upon this voting method.
-   function Create (A_Voting_Method: Voting_Method) return Tabulator;
+   function Create (A_Voting_Method: in Voting_Method) return Tabulator;
    
    -- Tabulate based upon the following contest specification.
    -- Will read from Argument to determine contest specification.     

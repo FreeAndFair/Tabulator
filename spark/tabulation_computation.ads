@@ -30,6 +30,8 @@
 -- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --==============================================================================
 
+pragma SPARK_Mode(On);
+
 with Tabulation_Types; use Tabulation_Types;
 
 package Tabulation_Computation

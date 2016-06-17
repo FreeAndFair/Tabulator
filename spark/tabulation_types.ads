@@ -53,49 +53,27 @@ is
    -- RCV variants, in particular.
    subtype Rcv_Voting_Method is Voting_Method range Rcv .. San_Francisco_Rcv;
 
+   -- We support up to 20 choices per contest.
+   subtype Choice is Natural range 1 .. 20;
    -- Plurality cast vote records (CVRs).  The digital representation
-   -- of a single race on a ballot in a plurality.
-   type Cvr is array(Positive) of Natural;
-   -- A list of CVRs.
-   type Cvrs is array(Positive) of Cvr;
-   
-   -- ============================================================
-   -- Coq types
-   -- ============================================================
-   -- A Choice in a race; aka a Candidate or a Measure Choice.
-   -- @design kiniry - Should these types be private as well?
-   -- @design kiniry - Should these kinds of types and functions be
-   -- relegated into a child package?
-   -- @coq Variable candidate: Set.
-   type Choice is new Positive;
-   -- A ballot contains a single choice.
-   -- @coq Let ballot := candidate.
-   type Ballot is new Choice;
-   -- An election is a list of Ballots.
-   -- @coq Let election := list ballot.
-   type Election is array(Positive) of Ballot;
-
-   -- Does this candidate participate in that election?
-   -- @design kiniry - Should these functions be private and be used only
-   -- for assurance arguments relating this implementation to the Coq spec?
-   -- @coq Definition participates candidate (election : election) : Prop
-   function Participates (A_Choice: in Choice; An_Election: in Election)
-                         return Boolean;
-   -- Has this candidate won that election?
-   -- @coq Definition hasPlurality winningCandidate (election : election) : Prop 
-   function Has_Plurality (A_Choice: in Choice; An_Election: in Election)
-                          return Boolean;
-   -- ============================================================
+   -- of a single race on a ballot in a plurality. 
+   type Cvr is array(Positive range <>) of Choice;
+   -- A list of CVRs (aka ballots).  We support CVRs with up to 20 contests.
+   type Cvrs is array(Positive range <>) of Cvr (1 .. 20);
    
    -- A single election contest. A contest, consisting of a voting
-   -- method and some choices.
+   -- method and some choices.  Note the function Contest_Invariant.
    type Contest is
       record
          -- What kind of election scheme does this contest have?
          The_Voting_Method: Voting_Method;
-         -- What is the list of choices for this contest?
-         Some_Choices: Choice;
+         -- How many choices are available in this contest?
+         Max_Choices: Positive;
+         -- What is the list of choices for this contest? We support up to
+         -- 20 ballots.
+         Some_Choices: Cvr (1 .. 20);
       end record;
+   
    -- A contest result. Contest results are computed by one of the
    -- Tabulation_Algorithm functions in the Tabulation_Computation
    -- package. This is a tagged record so that we can extend it
@@ -105,6 +83,7 @@ is
          -- This is the result of which contest?
          The_Contest: Contest;
       end record;
+   
    -- A plurality election result with a single winner.  
    -- @review kiniry - Is this record type redundant and we should
    -- only define and use Multiseat_Plurality_Contest_Result, renaming
@@ -113,17 +92,20 @@ is
    type Simple_Plurality_Contest_Result is new Contest_Result with
       record
          -- Who is the single winner of this contest?
-         Winner: Choice;
+         The_Winner: Choice;
       end record;
-   -- @design kiniry - More private types.
+   
+   -- @design kiniry - More private types?
    type Unordered_Choices is array(Positive) of Choice;
    type Ordered_Choices is array(Positive) of Choice;
+   
    -- A plurality election result with multiple winners.
    type Multiseat_Plurality_Contest_Result is new Simple_Plurality_Contest_Result with
       record
          -- Who are the winners of this contest?
          Winners: Unordered_Choices;
       end record;
+   
    -- A multiseat RCV election result with one or more winners.
    -- @design kiniry - Note the lack of alignment with this definition and 
    -- that of Simple_Plurality_Contest_Result.

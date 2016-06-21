@@ -32,78 +32,103 @@
 
 pragma SPARK_Mode(On);
 
-with SPARK.Text_IO; use SPARK.Text_IO;
+with Tabulation_Constants; use Tabulation_Constants;
 
 package Tabulation_Types
-  -- The types involved in the Tabulator.
+-- The types involved in the Tabulator.
 is
-   -- Comma separated values (CSVs).
-   -- We support values in CSVs of length no greater than 256 bytes.
-   -- @review kiniry - Make these kinds of types private. Expose exactly
-   -- those types mentioned in the BON specification.
-   subtype Index_256 is Integer range 1 .. 256;
-   subtype String_256 is String(Index_256);
-   -- A single list of comma-separated values.
-   type Csv is array(Positive) of String_256;
-   -- A list of CSVs.
-   type Csvs is array(Positive) of Csv;
-
    -- Tabulation algorithms potentially supported by the tabulator.
    type Voting_Method is (Plurality, Rcv, Approval, San_Francisco_Rcv);
    -- RCV variants, in particular.
    subtype Rcv_Voting_Method is Voting_Method range Rcv .. San_Francisco_Rcv;
 
-   -- We support up to 20 choices per contest.
-   subtype Choice is Natural range 1 .. 20;
-   -- Plurality cast vote records (CVRs).  The digital representation
-   -- of a single race on a ballot in a plurality. 
-   type Cvr is array(Positive range <>) of Choice;
-   -- A list of CVRs (aka ballots).  We support CVRs with up to 20 contests.
-   type Cvrs is array(Positive range <>) of Cvr (1 .. 20);
+   -- Plurality cast vote records (CVRs).  
+
+   -- The digital representation of a single contest on a ballot.
+   -- We support up to Max_Choices choices per contest.
+   subtype Choice is Natural range No_Choice .. Max_Choices;
+   -- A type encoding the maximal range of ballot indices.
+   subtype Ballot_Range is Natural range 0 .. Max_Ballots;
+   -- A list of choices, as a slice of the ballots in a contest.
+   type Choices is array(Ballot_Range) of Choice;
+   -- A ballot is a list of choices.
+   type Ballot is array(Positive range 1 .. Max_Contests) of Choice;
+   -- A list ballots. No more than Max_Contests contests are permitted.
+   type Ballots is array(Ballot_Range) of Ballot;
    
+   -- An empty list of choices used as a placeholder during creation.
+   Empty_Choices: constant Choices := (others => No_Choice);
+   -- An empty ballot used as a placeholder during creation.
+   Empty_Ballot: constant Ballot := (others => No_Choice);
+     
    -- A single election contest. A contest, consisting of a voting
    -- method and some choices.  Note the function Contest_Invariant.
+   -- The Max_Choices parameter of this discriminated record encodes
+   -- the query "How many choices are actually available in this contest?"
    type Contest is
       record
          -- What kind of election scheme does this contest have?
          The_Voting_Method: Voting_Method;
-         -- How many choices are available in this contest?
-         Max_Choices: Positive;
-         -- What is the list of choices for this contest? We support up to
-         -- 20 ballots.
-         Some_Choices: Cvr (1 .. 20);
+         -- What is the list of choices for this contest?
+         Some_Choices:      Choices;
+         -- How many choices are there for this particular contest?
+         Total_Choices:     Choice;
+         -- How many ballots are in this contest?
+         Total_Ballots:     Ballot_Range;
       end record;
    
+   -- An empty contest used as a placeholder during creation.
+   Empty_Contest: constant Contest := 
+     (The_Voting_Method => Plurality,
+      Some_Choices      => Empty_Choices,
+      Total_Choices     => No_Choice,
+      Total_Ballots     => 0);
+        
    -- A contest result. Contest results are computed by one of the
    -- Tabulation_Algorithm functions in the Tabulation_Computation
    -- package. This is a tagged record so that we can extend it
    -- appropriately for various kinds of election schemes.
+   -- @design kiniry - Should this be a subtype of Contest?
    type Contest_Result is tagged
       record
          -- This is the result of which contest?
          The_Contest: Contest;
       end record;
    
+   -- An empty contest result used as a placeholder during creation.
+   Empty_Contest_Result: constant Contest_Result :=
+     (The_Contest => Empty_Contest);
+   
+   -- The result of a plurality tally.
+   type Plurality_Tally is array(Choice range <>) of Natural;
+     
    -- A plurality election result with a single winner.  
    -- @review kiniry - Is this record type redundant and we should
    -- only define and use Multiseat_Plurality_Contest_Result, renaming
    -- it Plurality_Contest_Result and for a simple plurality election
    -- the cardinality of Winners will be 1?
+   -- @design kiniry - Ties have no winner.
    type Simple_Plurality_Contest_Result is new Contest_Result with
       record
+         -- How many votes did each choice receive?
+         Tally:      Plurality_Tally (No_Choice .. Max_Choices);
          -- Who is the single winner of this contest?
          The_Winner: Choice;
       end record;
    
-   -- @design kiniry - More private types?
-   type Unordered_Choices is array(Positive) of Choice;
-   type Ordered_Choices is array(Positive) of Choice;
+   -- Types encoding unordered and ordered choices used in multi-seat contests.
+   type Unordered_Choices is 
+     array(Positive range No_Choice .. Max_Choices) of Choice;
+   type Ordered_Choices is 
+     array(Positive range No_Choice .. Max_Choices) of Choice;
    
    -- A plurality election result with multiple winners.
-   type Multiseat_Plurality_Contest_Result is new Simple_Plurality_Contest_Result with
+   -- @design kiniry - State the invariant relating Winners to The_Winner.
+   type Multiseat_Plurality_Contest_Result is 
+     new Simple_Plurality_Contest_Result with
       record
          -- Who are the winners of this contest?
-         Winners: Unordered_Choices;
+         The_Winners: Unordered_Choices;
       end record;
    
    -- A multiseat RCV election result with one or more winners.
@@ -112,7 +137,7 @@ is
    type Multiseat_Rcv_Contest_Result is new Contest_Result with
       record
          -- Who are the winners of this contest?
-         Winners: Ordered_Choices;
+         The_Winners: Ordered_Choices;
       end record;
    
 end Tabulation_Types;       

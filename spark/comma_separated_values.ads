@@ -32,31 +32,44 @@
 
 pragma SPARK_Mode(On);
 
+with SPARK.Text_IO; use SPARK.Text_IO;
 with Tabulation_Types; use Tabulation_Types;
-with Tabulation_Computation; use Tabulation_Computation;
-with Tabulation_Io; use Tabulation_Io;
+with Tabulation_Constants; use Tabulation_Constants;
 
-package Tabulation_Root
--- Main body of tabulation system.
+package Comma_Separated_Values
+-- Encoding of election data using CSVs.
 is
-   -- What kind of voting method do you support?
-   function Which_Voting_Method return Voting_Method;
-   
-   -- What is the result of tabulating this contest with that set of CVRs?
-   procedure Compute_Contest_Result (A_Contest: in Contest)
-     with
-       Depends => (The_Tabulator => A_Contest);
-   
-   -- Create a tabulator based upon this voting method and that contest.
-   procedure Create
-     (A_Voting_Method: in Voting_Method;
-      A_Contest: in Contest)
-     with
-       Depends => (The_Tabulator => (A_Voting_Method, A_Contest));
-   
-   -- Tabulate based upon the following contest specification.
-   -- Will read from Argument to determine contest specification.     
-   procedure Tabulate;
-   
-   The_Tabulator: Tabulator;
-end Tabulation_Root;
+   -- Comma separated values (CSVs).
+   -- @review kiniry - Make these kinds of types private. Expose exactly
+   -- those types mentioned in the BON specification.
+   subtype Csv_Value is String(1 .. Max_Csv_Length);
+   -- A single list of comma-separated values.
+   type Csv is array(Positive range 1 .. Max_Choices) of Csv_Value;
+   -- A list of CSVs.
+   type Csvs is array(Positive range 1 .. Max_Contests) of Csv;
+
+   -- A CSV file.
+   type Csv_File is
+      record
+         The_File: File_Type;
+         Some_Csvs: Csvs;
+      end record;
+
+   -- What is your character separator?
+   function Separator (A_Csv: in Csv) return Character;
+   -- What is the parse of the following string using this character separator?
+   function Parse (A_String: in String; A_Character: in Character)
+                   return Csv;
+   -- What is your ith component?
+   -- @design kiniry - Realized by SPARK's array component reference
+   -- operator ().
+   function Ith (A_Csv: in Csv; An_Index: in Positive)
+                 return String;
+   -- How many components do you contain?
+   -- @design kiniry - Realized by SPARK's array attribute Length.
+   function Count (A_Csv: in Csv) return Natural;
+   -- invariant
+   -- Component indices start with one (1).
+   -- @design kiniry - Satisfied by the use of Positive type in all
+   -- range declarations.
+end Comma_Separated_Values;

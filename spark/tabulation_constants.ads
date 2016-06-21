@@ -32,31 +32,19 @@
 
 pragma SPARK_Mode(On);
 
-with Tabulation_Types; use Tabulation_Types;
-with Tabulation_Computation; use Tabulation_Computation;
-with Tabulation_Io; use Tabulation_Io;
+with SPARK.Text_IO; use SPARK.Text_IO;
 
-package Tabulation_Root
--- Main body of tabulation system.
+package Tabulation_Constants
+  -- Constants which define the limits of this Tabulator.
 is
-   -- What kind of voting method do you support?
-   function Which_Voting_Method return Voting_Method;
-   
-   -- What is the result of tabulating this contest with that set of CVRs?
-   procedure Compute_Contest_Result (A_Contest: in Contest)
-     with
-       Depends => (The_Tabulator => A_Contest);
-   
-   -- Create a tabulator based upon this voting method and that contest.
-   procedure Create
-     (A_Voting_Method: in Voting_Method;
-      A_Contest: in Contest)
-     with
-       Depends => (The_Tabulator => (A_Voting_Method, A_Contest));
-   
-   -- Tabulate based upon the following contest specification.
-   -- Will read from Argument to determine contest specification.     
-   procedure Tabulate;
-   
-   The_Tabulator: Tabulator;
-end Tabulation_Root;
+   -- We support values in CSVs of length no greater than Max_Csv_Length bytes.
+   Max_Csv_Length: constant Positive := 256;
+   -- We support no more than Max_Ballots ballots.
+   Max_Ballots: constant Positive := 100_000;
+   -- We support contents with no more than Max_Choices choices.
+   Max_Choices: constant Positive := 20;
+   -- We support ballots with no more than Max_Contests contests.
+   Max_Contests: constant Positive := 20;
+   -- A fixed encoding for no choice.
+   No_Choice: constant Natural := 0;
+end Tabulation_Constants;

@@ -42,48 +42,27 @@ is
    type Cvr_File is
       record
          The_File: File_Type;
-         Some_Cvrs: Cvrs;
-      end record;
-   
-   -- A CSV file.
-   type Csv_File is
-      record
-         The_File: File_Type;
-         Some_Csvs: Csvs;
+         Some_Cvrs: Ballots;
       end record;
 
    -- A file that contains a description of a single contest.
-   type Contest_File is
+   type Contest_File (Max_Choices: Positive) is
       record
          The_File: File_Type;
          A_Contest: Contest;
       end record;
 
-   -- A file describing a contest result. Note that this is
-   -- polymorphic over the various extensions of Contest_Result.  As
-   -- such, we must encode in the file metadata about the actual type
-   -- of the contest result.
-   type Contest_Result_File is
+   -- A file describing a simple plurality contest result.
+   type Simple_Plurality_Contest_Result_File is
       record
          The_File: File_Type;
-         A_Contest_Result: Contest_Result;
+         A_Contest_Result: Simple_Plurality_Contest_Result;
       end record;
-
-   -- What is your character separator?
-   function Separator (A_Csv: in Csv) return Character;
-   -- What is the parse of the following string using this character separator?
-   function Parse (A_String: in String; A_Character: in Character)
-     return Csv;
-   -- What is your ith component?
-   -- @design kiniry - Realized by SPARK's array component reference
-   -- operator ().
-   function Ith (A_Csv: in Csv; An_Index: in Positive)
-     return String;
-   -- How many components do you contain?
-   -- @design kiniry - Realized by SPARK's array attribute Length.
-   function Count (A_Csv: in Csv) return Natural;
-   -- invariant
-   -- Component indices start with one (1).
-   -- @design kiniry - Satisfied by the use of Positive type in all
-   -- range declarations.
+   
+   -- A file describing a multiseat plurality contest result.
+   type Multiseat_Plurality_Contest_Result_File is
+      record
+         The_File: File_Type;
+         A_Contest_Result: Multiseat_Plurality_Contest_Result;
+      end record;
 end Tabulation_IO;

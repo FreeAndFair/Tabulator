@@ -35,32 +35,13 @@ pragma SPARK_Mode(On);
 with Tabulation_Types; use Tabulation_Types;
 with Tabulation_Computation; use Tabulation_Computation;
 with Tabulation_Io; use Tabulation_Io;
+with Tabulation_Constants; use Tabulation_Constants;
+with SPARK.Text_IO; use SPARK.Text_IO;
 
-package Tabulation_Root
--- Main body of tabulation system.
+package body Tabulation_Root
+-- Implementation of the main body of tabulation system.
 is
    -- What kind of voting method do you support?
-   function Which_Voting_Method return Voting_Method;
-   
-   -- What is the result of tabulating this contest with that set of CVRs?
-   procedure Compute_Contest_Result (A_Contest: in Contest)
-     with
-       Import => True,
-       Depends => (The_Tabulator => A_Contest);
-   
-   -- Create a tabulator based upon this voting method and that contest.
-   procedure Create
-     (A_Voting_Method: in Voting_Method;
-      A_Contest: in Contest)
-     with
-       Import => True,
-       Depends => (The_Tabulator => (A_Voting_Method, A_Contest));
-   
-   -- Tabulate based upon the following contest specification.
-   -- Will read from Argument to determine contest specification.     
-   procedure Tabulate
-     with 
-       Import => True;
-   
-   The_Tabulator: Tabulator;
+   function Which_Voting_Method return Voting_Method
+   is (The_Tabulator.The_Voting_Method);
 end Tabulation_Root;

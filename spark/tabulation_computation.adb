@@ -32,74 +32,66 @@
 
 pragma SPARK_Mode(On);
 
-package body Tabulation_Computation is
-   
-   function Tabulator_Contest_Agreement (A_Tabulator: in Tabulator;
-                                         A_Contest: in Contest)
-      return Boolean
-   is (A_Tabulator.The_Voting_Method = A_Contest.The_Voting_Method);
-                                         
-   function Tabulation_Algorithm (The_Tabulator: in out Tabulator;
-                                  A_Contest: in Contest)
-      return Contest_Result
-   is
-   begin
-      The_Tabulator.A_Contest := A_Contest;
-      return (case A_Contest.The_Voting_Method is
-                 when Plurality =>
-                    Plurality_Tabulation_Algorithm (The_Tabulator, A_Contest),
-                 when Rcv =>
-                    Rcv_Tabulation_Algorithm (The_Tabulator, A_Contest),
-                 when Approval =>
-                    Approval_Tabulation_Algorithm (The_Tabulator, A_Contest),
-                 when San_Francisco_Rcv =>
-                    San_Francisco_Rcv_Tabulation_Algorithm (The_Tabulator, A_Contest));
-   end Tabulation_Algorithm;
+with Tabulation_Constants; use Tabulation_Constants;
 
-   function Plurality_Tabulation_Algorithm (The_Tabulator: in out Tabulator;
-                                            A_Contest: in Contest)
+package body Tabulation_Computation is
+   function Sum_of_Choices
+     (Tally: Plurality_Tally)
+      return Natural
+   is
+      Result: Natural;
+   begin
+      Result := 0;
+      for Choice in Tally'Range loop
+         Result := Result + Tally (Choice);
+      end loop;
+      return Result;
+   end Sum_of_Choices;
+   
+   function Plurality_Tabulation_Algorithm
+     (The_Tabulator: in out Tabulator;
+      A_Contest: in Contest)
       return Simple_Plurality_Contest_Result
    is
       Result: Simple_Plurality_Contest_Result;
-      Tally: array(1 .. A_Contest.Max_Choices) of Integer;
+      Tally: Plurality_Tally (No_Choice .. Max_Choices);
+      A_Winner: Choice;
+      A_Tie: Boolean;
    begin
-      pragma Assert(False);
-      Result := (The_Contest => A_Contest,
-                 The_Winner => 1);
+      Tally := (others => 0);
+      A_Winner := 1;
+      A_Tie := False;
+      -- Sum up votes for each choice.
+      for Choice in Positive range 1 .. A_Contest.Total_Choices loop
+         Tally (Choice) := Tally (Choice) + 1;
+      end loop;
+      -- Determine a choice that has the most votes.
+      for Choice in Positive range 1 .. A_Contest.Total_Choices loop
+         if Tally (Choice) > Tally (A_Winner) then
+            A_Winner := Choice;
+         end if;
+      end loop;
+      -- Determine if there is a tie.
+      for Choice in Positive range 1 .. A_Contest.Total_Choices loop
+         if Choice /= A_Winner and then Tally (Choice) = Tally (A_Winner) then
+            A_Tie := True;
+         end if;
+      end loop;
+      if A_Tie then
+         Result := (The_Winner  => No_Choice,
+                    Tally       => Tally,
+                    The_Contest => A_Contest);
+      else
+         Result := (The_Winner  => A_Winner,
+                    Tally       => Tally,
+                    The_Contest => A_Contest);
+      end if;
       return Result;
    end  Plurality_Tabulation_Algorithm;
-      
-   function Rcv_Tabulation_Algorithm (The_Tabulator: in out Tabulator;
-                                      A_Contest: in Contest)
-      return Contest_Result
-   is
-      Result: Contest_Result;
-   begin
-      pragma Assert(False);
-      Result := (The_Contest => A_Contest);
-      return Result;
-   end Rcv_Tabulation_Algorithm;
 
-   function San_Francisco_Rcv_Tabulation_Algorithm (The_Tabulator: in Tabulator;
-                                                    A_Contest: in Contest)
-      return Contest_Result
-   is
-      Result: Contest_Result;
-   begin
-      pragma Assert(False);
-      Result := (The_Contest => A_Contest);
-      return Result;
-   end San_Francisco_Rcv_Tabulation_Algorithm;
-
-   function Approval_Tabulation_Algorithm (The_Tabulator: in Tabulator;
-                                           A_Contest: in Contest)
-      return Contest_Result
-   is
-      Result: Contest_Result;
-   begin
-      pragma Assert(False);
-      Result := (The_Contest => A_Contest);
-      return Result;
-   end Approval_Tabulation_Algorithm;
+--   function Plurality_Tabulation_Algorithm
+--     (The_Tabulator: in out Tabulator;
+--      A_Contest: in Contest)
+--      return Multiseat_Plurality_Contest_Result
 end Tabulation_Computation;
 

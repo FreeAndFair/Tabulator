@@ -57,55 +57,56 @@ is
    
    -- A useful check to ensure that a tabulator can be used to compute
    -- the outcome of a contest.
-   -- @todo kiniry Information flow A_Contest -> A_Tabulator
-   function Tabulator_Contest_Agreement (A_Tabulator: in Tabulator;
-                                         A_Contest: in Contest)
-                                         return Boolean
-     with
-       Post => Tabulator_Contest_Agreement'Result = 
-         (A_Tabulator.The_Voting_Method = A_Contest.The_Voting_Method);
+   function Tabulator_Contest_Agreement
+     (A_Tabulator: in Tabulator;
+      A_Contest: in Contest)
+      return Boolean
+   is (A_Tabulator.The_Voting_Method = A_Contest.The_Voting_Method)
+   with
+   Ghost => True;
    
    -- Contest's invariant.
-   function Contest_Invariant (A_Contest: in Contest)
-                               return Boolean
-     with
-       Global => null,
-       Import => True,
-       Post => Contest_Invariant'Result =
-         -- Each choice is well-formed.
-         (for all I in A_Contest.Some_Choices'Range =>
+   function Contest_Invariant
+     (A_Contest: in Contest)
+      return Boolean
+   is -- Each choice is well-formed.
+     (for all I in A_Contest.Some_Choices'Range =>
             (if I <= A_Contest.Total_Ballots then 
-                 A_Contest.Some_Choices (I) <= A_Contest.Total_Choices));
+                 A_Contest.Some_Choices (I) <= A_Contest.Total_Choices))
+     with
+       Ghost => True;
    
    -- Helper function for the following invariants.
-   function Sum_of_Choices (Tally: Plurality_Tally) return Positive;
+   function Sum_of_Choices
+     (Tally: Plurality_Tally)
+      return Natural
+     with Ghost => True;
    
    -- Simple plurality contest results's invariant.
    function Simple_Plurality_Contest_Result_Invariant 
      (A_Contest_Result: in Simple_Plurality_Contest_Result)
       return Boolean
-     with 
-       Global => null,
-       Import => True,
-       Post => Simple_Plurality_Contest_Result_Invariant'Result =
-   -- Invariants for substructures must be respected.
-     Contest_Invariant(A_Contest_Result.The_Contest) and then
-   -- The sum of tallies for each choice, including no choice, must be exactly 
-   -- equal to the number of ballots.
-     Sum_of_Choices(A_Contest_Result.Tally) = 
-     A_Contest_Result.The_Contest.Total_Ballots and then
-   -- If there is a winner, they are the sole winner.
-     (if A_Contest_Result.The_Winner /= No_Choice then 
-        (for all I in A_Contest_Result.Tally'Range =>
-             (if (I <= A_Contest_Result.The_Contest.Total_Choices and 
-                        I /= A_Contest_Result.The_Winner) then 
-                      A_Contest_Result.Tally(I) < 
-                    A_Contest_Result.Tally(A_Contest_Result.The_Winner))));
+   is 
+      -- Invariants for substructures must be respected.
+     (Contest_Invariant(A_Contest_Result.The_Contest) and then
+      -- The sum of tallies for each choice, including no choice, must be exactly 
+      -- equal to the number of ballots.
+        Sum_of_Choices(A_Contest_Result.Tally) = 
+        A_Contest_Result.The_Contest.Total_Ballots and then
+      -- If there is a winner, they are the sole winner.
+        (if A_Contest_Result.The_Winner /= No_Choice then 
+           (for all I in A_Contest_Result.Tally'Range =>
+                (if (I <= A_Contest_Result.The_Contest.Total_Choices and 
+                           I /= A_Contest_Result.The_Winner) then 
+                          A_Contest_Result.Tally(I) < 
+                       A_Contest_Result.Tally(A_Contest_Result.The_Winner)))))
+      with 
+      Ghost => True;
    
    -- Tabulation of the plurality voting method.  What is the result
    -- of tabulating this contest using a plurality voting method?
    -- If there is a tie, then return no winner.
-   -- @design kiniry - Write postconditions.
+   -- @design kiniry - Write remaining postconditions.
    -- @spark kiniry - I thought that 'out' modes were forbidden for SPARK 
    -- function definitions?
    function Plurality_Tabulation_Algorithm
@@ -119,7 +120,9 @@ is
        Pre => Tabulator_Contest_Agreement (The_Tabulator, A_Contest) and then
      The_Tabulator.The_Voting_Method = Plurality and then
      Contest_Invariant (A_Contest),
-     Post => Simple_Plurality_Contest_Result_Invariant(Plurality_Tabulation_Algorithm'Result);
+     Post => Simple_Plurality_Contest_Result_Invariant
+       (Plurality_Tabulation_Algorithm'Result) and then
+     The_Tabulator.A_Contest = A_Contest;
    
    -- Tabulation of the plurality voting method.  What is the result
    -- of tabulating this contest using a plurality voting method?
@@ -131,13 +134,14 @@ is
       A_Contest: in Contest)
       return Multiseat_Plurality_Contest_Result
      with
+       Import => True,
        Depends => (The_Tabulator => A_Contest,
                    Plurality_Tabulation_Algorithm'Result => 
                      (The_Tabulator, A_Contest)),
        Pre => Tabulator_Contest_Agreement (The_Tabulator, A_Contest) and then
      The_Tabulator.The_Voting_Method = Plurality and then
      Contest_Invariant (A_Contest),
-     Post => True;
+     Post => The_Tabulator.A_Contest = A_Contest;
    
    -- A tabulator for all RCV voting methods.  What is the result of
    -- tabulating this contest using an RCV voting method?
@@ -147,6 +151,7 @@ is
       A_Contest: in Contest)
       return Contest_Result
      with
+       Import => True,
        Pre => Tabulator_Contest_Agreement (The_Tabulator, A_Contest) and then
      The_Tabulator.The_Voting_Method = Rcv and then
      Contest_Invariant (A_Contest);
@@ -159,6 +164,7 @@ is
       A_Contest: in Contest)
       return Contest_Result
      with
+       Import => True,
        Pre => Tabulator_Contest_Agreement (The_Tabulator, A_Contest) and then
      The_Tabulator.The_Voting_Method = San_Francisco_Rcv and then
      Contest_Invariant (A_Contest);
@@ -170,6 +176,7 @@ is
       A_Contest: in Contest)
       return Contest_Result
      with
+       Import => True,
        Pre => Tabulator_Contest_Agreement (The_Tabulator, A_Contest) and then
      The_Tabulator.The_Voting_Method = Approval and then
      Contest_Invariant (A_Contest);
